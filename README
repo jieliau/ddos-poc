@@ -1,0 +1,16 @@
+This is the simple code leverage slowloris.pl to demonstrate the concept of DDoS.
+
+There is 2 modes. One is zombie mode and another is commander. 
+
+In zombie mode:
+1) cd dslowloris
+2) ./dslowloris.pl -z
+And dslowloris will listen on port 12345 on the zombie host
+
+In commander mode:
+1) cd dslowloris
+2) ./dslowloris.pl -f ipAddrList.txt -c
+3) type the attack target (ip address of web host)
+4) ctrl-D
+
+Done!
