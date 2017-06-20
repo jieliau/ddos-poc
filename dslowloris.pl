@@ -14,7 +14,7 @@ if($opt_c && $opt_z) {
     die "Please select mode for $0 (commander or zombie)!!!\n";
 } elsif($opt_c && $opt_f) {
     print "This is commander mode!!!\n";
-    ### Put Client Part ###
+    ### Commander Part ###
     my($ip, @ipList, $i, $pid, @childs, $target);
     print "Please input the target IP or Hostname:";
     while(<STDIN>) {
